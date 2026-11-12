@@ -1,0 +1,43 @@
+# Tự kiểm tra mỗi lần đẩy code lên GitHub:
+#   1. Kiểm thử đơn vị (npm test)
+#   2. Build Next.js (bao gồm kiểm tra kiểu TypeScript)
+#   3. Kiểm thử tích hợp API trên Supabase thật, chỉ chạy khi đã khai báo secrets
+#      (Settings > Secrets and variables > Actions): NEXT_PUBLIC_SUPABASE_URL,
+#      NEXT_PUBLIC_SUPABASE_ANON_KEY, TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co' }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-key-for-build' }}
+      TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
+      TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Kiểm thử đơn vị
+        run: npm test
+
+      - name: Build (kiểm tra kiểu TypeScript)
+        run: npm run build
+
+      - name: Kiểm thử tích hợp API
+        if: env.TEST_ADMIN_EMAIL != ''
+        run: |
+          npm start &
+          for i in $(seq 1 30); do curl -fs http://localhost:3000/api/v1/events > /dev/null && break; sleep 1; done
+          node --experimental-strip-types --no-warnings --test --test-concurrency=1 "tests/api/*.test.ts"

@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    overflow-x: clip;
+    @apply bg-mist font-sans text-ink antialiased;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+  h1, h2, h3 {
+    @apply font-serif font-bold text-pine;
+    line-height: 1.25;
+  }
+  :focus-visible {
+    outline: 3px solid #C4952A;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md px-5 py-3 text-base font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+    min-height: 48px;
+  }
+  .btn-primary {
+    @apply bg-saffron font-semibold text-white shadow-sm hover:bg-saffron-dark;
+  }
+  .btn-quiet {
+    @apply border border-line bg-paper text-ink hover:border-saffron;
+  }
+  .btn-ghost {
+    @apply border border-white/40 bg-white/10 font-semibold text-white hover:bg-white/20;
+  }
+  /* Khối tràn hết chiều ngang màn hình dù nằm trong <main> có giới hạn độ rộng */
+  .full-bleed {
+    @apply relative left-1/2 w-screen -translate-x-1/2;
+  }
+  .eyebrow {
+    @apply text-sm font-semibold uppercase tracking-[0.2em] text-saffron-ink;
+  }
+  .btn-sm {
+    @apply rounded px-3 py-1.5 text-sm;
+    min-height: 36px;
+  }
+  .field {
+    @apply w-full rounded-md border border-line bg-white px-3.5 py-3 text-base text-ink placeholder:text-muted focus:border-saffron;
+    min-height: 48px;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink;
+  }
+  .hint {
+    @apply mt-1 text-sm text-muted;
+  }
+}
+
+/* Ảnh nền hero trang chủ: điện thoại phủ kín và tối đều; màn hình rộng phóng to,
+   đẩy tượng Phật sang phải, phía trái tối để đọc chữ. */
+.hero-bg {
+  background-color: #2E1A0E;
+  background-image: linear-gradient(rgba(30, 17, 8, 0.78), rgba(30, 17, 8, 0.86)), url(/images/hero.jpg);
+  background-size: auto, cover;
+  background-position: 0 0, 60% 20%;
+  background-repeat: no-repeat;
+}
+@media (min-width: 768px) {
+  .hero-bg {
+    background-image:
+      linear-gradient(90deg, rgba(30, 17, 8, 0.96) 0%, rgba(30, 17, 8, 0.9) 34%, rgba(30, 17, 8, 0.4) 56%, rgba(30, 17, 8, 0.05) 78%),
+      linear-gradient(0deg, rgba(30, 17, 8, 0.55), rgba(30, 17, 8, 0) 35%),
+      url(/images/hero.jpg);
+    background-size: auto, auto, max(128%, 1300px) auto;
+    background-position: 0 0, 0 0, left 0 top 10%;
+  }
+}
+
