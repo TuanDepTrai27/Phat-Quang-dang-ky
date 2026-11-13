@@ -3,7 +3,7 @@ import { createClient } from "./supabase/server";
 
 /** Chỉ cho người đã đăng nhập VÀ có tên trong bảng admins đi tiếp. */
 export async function requireAdmin() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

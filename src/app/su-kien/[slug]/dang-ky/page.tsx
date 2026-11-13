@@ -6,8 +6,9 @@ import { eventState, formatRange } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-export default async function RegisterPage({ params }: { params: { slug: string } }) {
-  const event = await getPublicEvent(params.slug);
+export default async function RegisterPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const event = await getPublicEvent(slug);
   if (!event) notFound();
   const state = eventState(event);
 

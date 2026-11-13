@@ -4,7 +4,8 @@ import type { Venue } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewEventPage({ searchParams }: { searchParams: { loi?: string } }) {
+export default async function NewEventPage(props: { searchParams: Promise<{ loi?: string }> }) {
+  const searchParams = await props.searchParams;
   const { supabase } = await requireAdmin();
   const { data } = await supabase.from("venues").select("*").order("name");
 

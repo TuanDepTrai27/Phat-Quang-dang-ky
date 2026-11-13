@@ -1,11 +1,11 @@
 # Đăng ký khóa tu và sự kiện - Thiền Tôn Phật Quang
 
-Web app quản lý và tiếp nhận đăng ký khóa tu, đại lễ. Next.js 14 (App Router) + Supabase + Tailwind, deploy trên Vercel.
+Web app quản lý và tiếp nhận đăng ký khóa tu, đại lễ. Next.js 15 (App Router) + Supabase + Tailwind, deploy trên Vercel.
 
 ## Chạy thử trên máy
 
 1. Tạo project tại https://supabase.com (gói miễn phí).
-2. Vào **SQL Editor**, chạy lần lượt: `supabase/schema.sql`, `supabase/migrations/001_anh_bia.sql`, (tùy chọn) `supabase/seed.sql`, `supabase/migrations/002_anh_bia_su_kien.sql` (gắn ảnh bìa cho sự kiện mẫu), rồi `supabase/migrations/003_nhat_ky_thao_tac.sql` (nhật ký thao tác).
+2. Vào **SQL Editor**, chạy lần lượt: `supabase/schema.sql`, `supabase/migrations/001_anh_bia.sql`, (tùy chọn) `supabase/seed.sql`, `supabase/migrations/002_anh_bia_su_kien.sql` (gắn ảnh bìa cho sự kiện mẫu), `supabase/migrations/003_nhat_ky_thao_tac.sql` (nhật ký thao tác), rồi `supabase/migrations/004_du_lieu_chinh_thuc.sql` (cập nhật dữ liệu theo lịch chính thức).
 3. Sao chép `.env.example` thành `.env.local`, điền `NEXT_PUBLIC_SUPABASE_URL` và `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings > API; chỉ dùng khóa anon/publishable, không dùng service_role).
 4. Cài và chạy (cần Node.js LTS):
    ```bash

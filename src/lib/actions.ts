@@ -47,7 +47,7 @@ export async function registerAction(
   if (!checked.ok) return { error: Object.values(checked.errors)[0], values };
   const d = checked.data;
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.rpc("register_for_event", {
     p_event: d.eventId,
     p_full_name: d.fullName,
@@ -68,7 +68,7 @@ export async function registerAction(
 }
 
 async function doLookup(code: string, phone: string): Promise<LookupResult | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.rpc("lookup_registration", {
     p_code: code,
     p_phone: phone,
@@ -94,7 +94,7 @@ export async function lookupAction(
 
   let message: string | undefined;
   if (text(fd, "intent") === "cancel") {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase.rpc("cancel_registration", {
       p_code: checked.data.code,
       p_phone: phone,
@@ -119,7 +119,7 @@ export async function lookupAction(
 /* ------------------------------------------------------------------ */
 
 export async function signInAction(fd: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
     email: text(fd, "email"),
     password: String(fd.get("password") ?? ""),
@@ -129,7 +129,7 @@ export async function signInAction(fd: FormData) {
 }
 
 export async function signOutAction() {
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/admin/login");
 }

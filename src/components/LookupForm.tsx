@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { lookupAction } from "@/lib/actions";
 import { formatRange } from "@/lib/format";
 import { STATUS_LABEL, type LookupFormState, type RegStatus } from "@/lib/types";
@@ -41,7 +42,7 @@ function CancelButton() {
 }
 
 export function LookupForm({ initialCode = "" }: { initialCode?: string }) {
-  const [state, action] = useFormState<LookupFormState, FormData>(lookupAction, {});
+  const [state, action] = useActionState<LookupFormState, FormData>(lookupAction, {});
   const r = state.result;
 
   return (

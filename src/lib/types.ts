@@ -87,7 +87,7 @@ export type LookupResult = {
   venue_name: string | null;
 };
 
-// Trạng thái của form (dùng với useFormState)
+// Trạng thái của form (dùng với useActionState)
 export type RegisterFormState = {
   error?: string;
   values?: Record<string, string>;

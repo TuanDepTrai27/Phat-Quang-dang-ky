@@ -11,7 +11,8 @@ const cell = (v: string | number | null | undefined) => {
   return `"${s.replace(/"/g, '""')}"`;
 };
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { supabase } = await requireAdmin();
 
   const { data: ev } = await supabase.from("events").select("title,slug").eq("id", params.id).maybeSingle();

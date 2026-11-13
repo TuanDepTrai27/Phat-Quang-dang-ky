@@ -1,6 +1,7 @@
 import { signInAction } from "@/lib/actions";
 
-export default function LoginPage({ searchParams }: { searchParams: { loi?: string } }) {
+export default async function LoginPage(props: { searchParams: Promise<{ loi?: string }> }) {
+  const searchParams = await props.searchParams;
   const msg =
     searchParams.loi === "sai"
       ? "Email hoặc mật khẩu chưa đúng."

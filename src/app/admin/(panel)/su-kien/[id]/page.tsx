@@ -28,13 +28,11 @@ function StatusForm({ r, to, label }: { r: Registration; to: RegStatus; label: s
   );
 }
 
-export default async function AdminEventPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string };
-  searchParams: { tt?: string; q?: string; loi?: string; "da-luu"?: string };
+export default async function AdminEventPage(props: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ tt?: string; q?: string; loi?: string; "da-luu"?: string }>;
 }) {
+  const [params, searchParams] = await Promise.all([props.params, props.searchParams]);
   const { supabase } = await requireAdmin();
 
   const [evRes, venueRes, regRes, logRes] = await Promise.all([

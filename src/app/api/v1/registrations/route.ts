@@ -1,36 +1,40 @@
-import { badJson, fromDbError, ok, publicClient, readJson, validationFailed } from "@/lib/api";
-import { validateRegistration } from "@/lib/validation";
+import { badJson, fail, fromDbError, ok, publicClient, readJson, validationFailed } from "@/lib/api";
+import { STATUS_LABEL, type LookupResult } from "@/lib/types";
+import { validateLookup } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
 /**
- * POST /api/v1/registrations
- * Body JSON: { event_id, full_name, phone, birth_year, gender, dharma_name?, province?,
- *              is_first_time?, needs_lodging?, notes? }
- * 201: { data: { code } }   400: dữ liệu sai   404: không có sự kiện   409: hết chỗ / đã đăng ký / đã đóng
+ * POST /api/v1/registrations/lookup   Body: { code, phone }
+ * Dùng POST (không dùng GET) để số điện thoại không nằm trong URL và nhật ký truy cập.
  */
 export async function POST(req: Request) {
   const body = await readJson(req);
   if (!body) return badJson();
 
-  const checked = validateRegistration(body);
+  const checked = validateLookup(body);
   if (!checked.ok) return validationFailed(checked.errors);
-  const d = checked.data;
 
-  // Kiểm tra chỗ trống, trùng đăng ký và khóa dòng nằm trong hàm Postgres register_for_event
-  const { data, error } = await publicClient().rpc("register_for_event", {
-    p_event: d.eventId,
-    p_full_name: d.fullName,
-    p_dharma_name: d.dharmaName,
-    p_phone: d.phone,
-    p_birth_year: d.birthYear,
-    p_gender: d.gender,
-    p_province: d.province,
-    p_is_first_time: d.isFirstTime,
-    p_needs_lodging: d.needsLodging,
-    p_notes: d.notes,
+  const { data, error } = await publicClient().rpc("lookup_registration", {
+    p_code: checked.data.code,
+    p_phone: checked.data.phone,
   });
   if (error) return fromDbError(error.message);
 
-  return ok({ code: String(data), event_id: d.eventId }, 201);
+  const row = ((data ?? []) as LookupResult[])[0];
+  if (!row) return fail(404, "REGISTRATION_NOT_FOUND", "Không tìm thấy đăng ký với mã và số điện thoại này.");
+
+  return ok({
+    code: row.code,
+    full_name: row.full_name,
+    status: row.status,
+    status_label: STATUS_LABEL[row.status],
+    event: {
+      title: row.event_title,
+      slug: row.event_slug,
+      start_date: row.start_date,
+      end_date: row.end_date,
+      venue_name: row.venue_name,
+    },
+  });
 }

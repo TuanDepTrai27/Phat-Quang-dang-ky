@@ -1,6 +1,7 @@
 import { LookupForm } from "@/components/LookupForm";
 
-export default function LookupPage({ searchParams }: { searchParams: { ma?: string } }) {
+export default async function LookupPage(props: { searchParams: Promise<{ ma?: string }> }) {
+  const searchParams = await props.searchParams;
   return (
     <div className="mx-auto max-w-xl">
       <h1 className="text-3xl">Tra cứu đăng ký</h1>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { registerAction } from "@/lib/actions";
 import type { PublicEvent, RegisterFormState } from "@/lib/types";
 
@@ -14,7 +15,7 @@ function Submit() {
 }
 
 export function RegistrationForm({ event }: { event: PublicEvent }) {
-  const [state, action] = useFormState<RegisterFormState, FormData>(registerAction, {});
+  const [state, action] = useActionState<RegisterFormState, FormData>(registerAction, {});
   const v = state.values ?? {};
   const askLodging = event.event_type === "khoa_thien" || event.event_type === "dai_le";
 

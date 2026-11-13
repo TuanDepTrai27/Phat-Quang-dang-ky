@@ -4,11 +4,10 @@ import { formatRange } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-export default async function SuccessPage({
-  searchParams,
-}: {
-  searchParams: { ma?: string; "su-kien"?: string };
+export default async function SuccessPage(props: {
+  searchParams: Promise<{ ma?: string; "su-kien"?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const code = (searchParams.ma ?? "").slice(0, 12);
   const slug = searchParams["su-kien"] ?? "";
   const event = slug ? await getPublicEvent(slug) : null;

@@ -2,7 +2,7 @@ import { createClient } from "./supabase/server";
 import type { PublicEvent } from "./types";
 
 export async function getPublicEvents(): Promise<PublicEvent[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.rpc("list_public_events");
   if (error) throw new Error(error.message);
   return (data ?? []) as PublicEvent[];
