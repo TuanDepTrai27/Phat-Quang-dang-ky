@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPublicEvent } from "@/lib/events";
 import { formatRange } from "@/lib/format";
+import { checkInQrSvg } from "@/lib/qr";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,7 @@ export default async function SuccessPage(props: {
   const searchParams = await props.searchParams;
   const code = (searchParams.ma ?? "").slice(0, 12);
   const slug = searchParams["su-kien"] ?? "";
-  const event = slug ? await getPublicEvent(slug) : null;
+  const [event, qr] = await Promise.all([slug ? getPublicEvent(slug) : null, checkInQrSvg(code)]);
 
   return (
     <div className="mx-auto max-w-xl text-center">
@@ -24,8 +25,17 @@ export default async function SuccessPage(props: {
       <div className="mt-8 rounded-lg border border-line bg-paper px-6 py-8">
         <p className="text-sm text-muted">Mã đăng ký của bạn</p>
         <p className="mt-2 font-serif text-4xl font-semibold tracking-widest text-pine">{code}</p>
+        {qr && (
+          <div
+            className="mx-auto mt-6 w-48 rounded-md border border-line bg-white p-2 [&>svg]:h-auto [&>svg]:w-full"
+            role="img"
+            aria-label={`Mã QR check-in cho ${code}`}
+            dangerouslySetInnerHTML={{ __html: qr }}
+          />
+        )}
         <p className="mt-4 text-muted">
-          Hãy chụp màn hình hoặc ghi lại mã này. Bạn cần mã cùng số điện thoại để tra cứu hoặc hủy đăng ký.
+          Hãy chụp màn hình trang này. Khi đến sự kiện, đưa mã QR cho ban tổ chức quét để check-in
+          (dùng được khi đăng ký đã được duyệt). Bạn cần mã cùng số điện thoại để tra cứu hoặc hủy đăng ký.
         </p>
       </div>
 

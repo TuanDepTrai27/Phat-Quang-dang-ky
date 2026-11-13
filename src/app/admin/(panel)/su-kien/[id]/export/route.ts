@@ -27,7 +27,7 @@ export async function GET(_req: Request, props: { params: Promise<{ id: string }
 
   const header = [
     "Mã", "Họ và tên", "Pháp danh", "Số điện thoại", "Năm sinh", "Giới tính",
-    "Nơi ở", "Lần đầu", "Cần lưu trú", "Ghi chú", "Trạng thái", "Thời gian đăng ký",
+    "Nơi ở", "Lần đầu", "Cần lưu trú", "Ghi chú", "Trạng thái", "Thời gian đăng ký", "Check-in",
   ];
   const lines = rows.map((r) =>
     [
@@ -43,6 +43,7 @@ export async function GET(_req: Request, props: { params: Promise<{ id: string }
       cell(r.notes),
       cell(STATUS_LABEL[r.status]),
       cell(formatDateTime(r.created_at)),
+      cell(r.checked_in_at ? formatDateTime(r.checked_in_at) : ""),
     ].join(",")
   );
 

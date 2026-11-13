@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "./auth";
 import { slugify } from "./format";
+import { checkInQrSvg } from "./qr";
 import { createClient } from "./supabase/server";
 import {
   isEventType,
@@ -111,7 +112,9 @@ export async function lookupAction(
       values,
     };
   }
-  return { result, message, values };
+  const qr =
+    result.status === "pending" || result.status === "approved" ? (await checkInQrSvg(result.code)) ?? undefined : undefined;
+  return { result, qr, message, values };
 }
 
 /* ------------------------------------------------------------------ */
@@ -124,8 +127,14 @@ export async function signInAction(fd: FormData) {
     email: text(fd, "email"),
     password: String(fd.get("password") ?? ""),
   });
-  if (error) redirect("/admin/login?loi=sai");
-  redirect("/admin");
+  const next = safeNext(text(fd, "tiep"));
+  if (error) redirect(`/admin/login?loi=sai${next ? `&tiep=${encodeURIComponent(next)}` : ""}`);
+  redirect(next ?? "/admin");
+}
+
+/** Chỉ cho quay lại trang quản trị nội bộ, chặn chuyển hướng sang trang ngoài (open redirect). */
+function safeNext(v: string): string | null {
+  return /^\/admin(\/[A-Za-z0-9\-_/]*)?(\?[A-Za-z0-9=&%\-_]*)?$/.test(v) ? v : null;
 }
 
 export async function signOutAction() {
@@ -204,7 +213,8 @@ export async function setRegistrationStatusAction(fd: FormData) {
   const status = text(fd, "status");
   if (!["pending", "approved", "rejected"].includes(status)) return;
 
-  await supabase.from("registrations").update({ status }).eq("id", id);
+  // Đã check-in thì không đổi trạng thái nữa (giữ đúng số người thực tế có mặt).
+  await supabase.from("registrations").update({ status }).eq("id", id).is("checked_in_at", null);
   revalidatePath(`/admin/su-kien/${eventId}`);
   revalidatePath("/admin");
   revalidatePath("/");
@@ -226,4 +236,33 @@ export async function deleteVenueAction(fd: FormData) {
   const { supabase } = await requireAdmin();
   await supabase.from("venues").delete().eq("id", text(fd, "id"));
   revalidatePath("/admin/dia-diem");
+}
+
+/* ------------------------------------------------------------------ */
+/* Check-in tại sự kiện                                                */
+/* ------------------------------------------------------------------ */
+
+const CHECKIN_ERRORS: Record<string, string> = {
+  NOT_ADMIN: "Tài khoản không có quyền quản trị.",
+  REGISTRATION_NOT_FOUND: "Không tìm thấy mã đăng ký này.",
+  ALREADY_CHECKED_IN: "Đăng ký này đã check-in trước đó.",
+  NOT_APPROVED: "Đăng ký chưa được duyệt (hoặc đã bị từ chối, đã hủy) nên chưa check-in được.",
+};
+
+export async function checkInAction(fd: FormData) {
+  const { supabase } = await requireAdmin();
+  const code = text(fd, "ma").toUpperCase();
+  const approve = text(fd, "duyet") === "1";
+  const back = text(fd, "tu") === "su-kien" ? text(fd, "event_id") : "";
+
+  const { error } = await supabase.rpc("check_in_registration", { p_code: code, p_approve: approve });
+  const key = error ? Object.keys(CHECKIN_ERRORS).find((k) => error.message.includes(k)) : undefined;
+  const loi = error ? (key ? CHECKIN_ERRORS[key] : "Chưa check-in được. Thử lại sau ít phút.") : "";
+
+  if (back) {
+    revalidatePath(`/admin/su-kien/${back}`);
+    redirect(`/admin/su-kien/${back}${loi ? `?loi=${encodeURIComponent(loi)}` : ""}`);
+  }
+  revalidatePath("/admin/check-in");
+  redirect(`/admin/check-in?ma=${encodeURIComponent(code)}${loi ? `&loi=${encodeURIComponent(loi)}` : "&ok=1"}`);
 }

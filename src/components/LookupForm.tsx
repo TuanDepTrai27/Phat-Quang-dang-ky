@@ -91,6 +91,18 @@ export function LookupForm({ initialCode = "" }: { initialCode?: string }) {
             {r.venue_name && <div><dt className="text-sm text-muted">Địa điểm</dt><dd>{r.venue_name}</dd></div>}
           </dl>
 
+          {state.qr && (
+            <div className="mt-6">
+              <p className="text-sm text-muted">Mã QR check-in (đưa ban tổ chức quét khi đến sự kiện)</p>
+              <div
+                className="mt-2 w-44 rounded-md border border-line bg-white p-2 [&>svg]:h-auto [&>svg]:w-full"
+                role="img"
+                aria-label={`Mã QR check-in cho ${r.code}`}
+                dangerouslySetInnerHTML={{ __html: state.qr }}
+              />
+            </div>
+          )}
+
           {(r.status === "pending" || r.status === "approved") && (
             <div className="mt-6"><CancelButton /></div>
           )}

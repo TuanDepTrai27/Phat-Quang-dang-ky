@@ -1,6 +1,6 @@
 import { signInAction } from "@/lib/actions";
 
-export default async function LoginPage(props: { searchParams: Promise<{ loi?: string }> }) {
+export default async function LoginPage(props: { searchParams: Promise<{ loi?: string; tiep?: string }> }) {
   const searchParams = await props.searchParams;
   const msg =
     searchParams.loi === "sai"
@@ -15,6 +15,7 @@ export default async function LoginPage(props: { searchParams: Promise<{ loi?: s
       <p className="mt-2 text-muted">Dành cho ban tổ chức của thiền tôn.</p>
 
       <form action={signInAction} className="mt-8 space-y-5">
+        {searchParams.tiep && <input type="hidden" name="tiep" value={searchParams.tiep} />}
         {msg && (
           <div role="alert" className="rounded-md border border-lotus/40 bg-lotus/10 px-4 py-3 text-lotus">
             {msg}

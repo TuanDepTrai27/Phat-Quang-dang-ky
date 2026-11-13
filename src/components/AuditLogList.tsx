@@ -30,6 +30,8 @@ function describe(log: AuditLog): string {
     }
     case "registration.status":
       return `${String(c.code ?? "")}: ${statusText(c.cu)} → ${statusText(c.moi)}`;
+    case "registration.checkin":
+      return `${String(c.code ?? "")}: Check-in tại sự kiện`;
     case "registration.delete":
       return `Xóa đăng ký ${String(c.code ?? "")}`;
     default:

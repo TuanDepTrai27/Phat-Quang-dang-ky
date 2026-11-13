@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AuditLogList } from "@/components/AuditLogList";
 import { EventForm } from "@/components/EventForm";
-import { setRegistrationStatusAction } from "@/lib/actions";
+import { EventStats } from "@/components/EventStats";
+import { checkInAction, setRegistrationStatusAction } from "@/lib/actions";
 import { requireAdmin } from "@/lib/auth";
 import { formatDateTime, formatRange } from "@/lib/format";
+import { computeEventStats } from "@/lib/stats";
 import { STATUS_LABEL, type AuditLog, type EventRow, type RegStatus, type Registration, type Venue } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -51,6 +53,7 @@ export default async function AdminEventPage(props: {
 
   const count = (s: RegStatus) => all.filter((r) => r.status === s).length;
   const taken = count("pending") + count("approved");
+  const stats = computeEventStats(all);
 
   const tt = searchParams.tt ?? "";
   const q = (searchParams.q ?? "").trim().toLowerCase();
@@ -85,7 +88,7 @@ export default async function AdminEventPage(props: {
         {[
           ["Chờ duyệt", count("pending")],
           ["Đã duyệt", count("approved")],
-          ["Từ chối hoặc hủy", count("rejected") + count("cancelled")],
+          ["Đã check-in", stats.checkedIn],
           [event.capacity ? "Chỗ còn lại" : "Số chỗ", event.capacity ? Math.max(event.capacity - taken, 0) : "Không giới hạn"],
         ].map(([label, value]) => (
           <div key={String(label)} className="rounded-lg border border-line bg-paper p-4">
@@ -158,13 +161,28 @@ export default async function AdminEventPage(props: {
                       <span className={`inline-block rounded-full px-3 py-0.5 text-sm font-medium ${STATUS_COLOR[r.status]}`}>
                         {STATUS_LABEL[r.status]}
                       </span>
+                      {r.checked_in_at && (
+                        <p className="mt-1 text-xs text-pine">Check-in {formatDateTime(r.checked_in_at)}</p>
+                      )}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-2">
-                        {r.status !== "approved" && r.status !== "cancelled" && <StatusForm r={r} to="approved" label="Duyệt" />}
-                        {r.status === "pending" && <StatusForm r={r} to="rejected" label="Từ chối" />}
-                        {(r.status === "approved" || r.status === "rejected") && <StatusForm r={r} to="pending" label="Về chờ duyệt" />}
-                      </div>
+                      {r.checked_in_at ? (
+                        <span className="text-sm text-muted">Đã có mặt</span>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {r.status === "approved" && (
+                            <form action={checkInAction}>
+                              <input type="hidden" name="ma" value={r.code} />
+                              <input type="hidden" name="event_id" value={r.event_id} />
+                              <input type="hidden" name="tu" value="su-kien" />
+                              <button type="submit" className="btn btn-primary btn-sm whitespace-nowrap">Check-in</button>
+                            </form>
+                          )}
+                          {r.status !== "approved" && r.status !== "cancelled" && <StatusForm r={r} to="approved" label="Duyệt" />}
+                          {r.status === "pending" && <StatusForm r={r} to="rejected" label="Từ chối" />}
+                          {(r.status === "approved" || r.status === "rejected") && <StatusForm r={r} to="pending" label="Về chờ duyệt" />}
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -172,6 +190,14 @@ export default async function AdminEventPage(props: {
             </table>
           </div>
         )}
+      </section>
+
+      <section className="mt-12">
+        <h2 className="text-2xl">Thống kê</h2>
+        <p className="text-sm text-muted">
+          Giới tính, độ tuổi, nơi ở chỉ tính đăng ký đang chờ duyệt hoặc đã duyệt.
+        </p>
+        <EventStats s={stats} />
       </section>
 
       <section className="mt-12">

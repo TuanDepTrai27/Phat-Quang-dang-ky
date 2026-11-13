@@ -74,6 +74,8 @@ export type Registration = {
   notes: string | null;
   status: RegStatus;
   created_at: string;
+  checked_in_at: string | null;
+  checked_in_by: string | null;
 };
 
 export type LookupResult = {
@@ -97,6 +99,7 @@ export type LookupFormState = {
   error?: string;
   message?: string;
   result?: LookupResult;
+  qr?: string; // SVG mã QR check-in, chỉ có khi đăng ký đang chờ duyệt hoặc đã duyệt
   values?: { ma: string; sdt: string };
 };
 
@@ -106,7 +109,7 @@ export type AuditLog = {
   at: string;
   actor_id: string | null;
   actor_email: string | null;
-  action: "event.insert" | "event.update" | "event.delete" | "registration.status" | "registration.delete";
+  action: "event.insert" | "event.update" | "event.delete" | "registration.status" | "registration.delete" | "registration.checkin";
   event_id: string | null;
   record_id: string;
   changes: Record<string, unknown> | null;

@@ -30,7 +30,8 @@ export async function middleware(request: NextRequest) {
   if (path.startsWith("/admin") && path !== "/admin/login" && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin/login";
-    url.search = "";
+    // Nhớ trang đang mở (vd. vừa quét QR check-in) để đăng nhập xong quay lại đúng chỗ.
+    url.search = path === "/admin" ? "" : `?tiep=${encodeURIComponent(path + request.nextUrl.search)}`;
     return NextResponse.redirect(url);
   }
   return response;

@@ -10,6 +10,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <nav className="flex flex-wrap gap-5">
           <Link href="/admin" className="font-medium text-pine hover:underline">Sự kiện</Link>
           <Link href="/admin/dia-diem" className="font-medium text-pine hover:underline">Địa điểm</Link>
+          <Link href="/admin/check-in" className="font-medium text-pine hover:underline">Check-in</Link>
           <Link href="/" className="text-muted hover:text-pine">Xem trang công khai</Link>
         </nav>
         <form action={signOutAction} className="flex items-center gap-3 text-sm text-muted">
