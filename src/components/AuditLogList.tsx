@@ -37,6 +37,13 @@ function describe(log: AuditLog): string {
   }
 }
 
+/** Ai thực hiện: email admin; không đăng nhập thì phân biệt người đăng ký tự hủy với lệnh SQL chạy trực tiếp. */
+function actorLabel(log: AuditLog): string {
+  if (log.actor_email) return log.actor_email;
+  if (log.actor_id) return "Quản trị viên";
+  return log.action.startsWith("registration.") ? "Người đăng ký tự thao tác" : "Lệnh SQL trực tiếp trên CSDL";
+}
+
 export function AuditLogList({ logs }: { logs: AuditLog[] }) {
   if (logs.length === 0) {
     return <p className="mt-4 text-muted">Chưa có thao tác nào được ghi lại.</p>;
@@ -47,7 +54,7 @@ export function AuditLogList({ logs }: { logs: AuditLog[] }) {
         <li key={log.id} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-4 py-3">
           <span>{describe(log)}</span>
           <span className="text-sm text-muted">
-            {log.actor_email ?? (log.actor_id ? "Quản trị viên" : "Người đăng ký tự thao tác")} · {formatDateTime(log.at)}
+            {actorLabel(log)} · {formatDateTime(log.at)}
           </span>
         </li>
       ))}
