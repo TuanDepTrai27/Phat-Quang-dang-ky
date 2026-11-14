@@ -14,10 +14,21 @@ const HINT: Record<RegStatus, string> = {
   cancelled: "Đăng ký này đã được hủy.",
 };
 
+/** Ghi ý định (tra cứu hay hủy) vào ô ẩn, không dựa vào name/value của nút bấm. */
+function setIntent(btn: HTMLButtonElement, v: string) {
+  const input = btn.form?.elements.namedItem("intent");
+  if (input instanceof HTMLInputElement) input.value = v;
+}
+
 function Submit({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className="btn btn-primary w-full sm:w-auto">
+    <button
+      type="submit"
+      disabled={pending}
+      onClick={(e) => setIntent(e.currentTarget, "")}
+      className="btn btn-primary w-full sm:w-auto"
+    >
       {pending ? "Đang tìm..." : children}
     </button>
   );
@@ -28,11 +39,10 @@ function CancelButton() {
   return (
     <button
       type="submit"
-      name="intent"
-      value="cancel"
       disabled={pending}
       onClick={(e) => {
         if (!confirm("Bạn chắc chắn muốn hủy đăng ký này?")) e.preventDefault();
+        else setIntent(e.currentTarget, "cancel");
       }}
       className="btn btn-quiet text-lotus"
     >
@@ -47,6 +57,7 @@ export function LookupForm({ initialCode = "" }: { initialCode?: string }) {
 
   return (
     <form action={action} className="space-y-5">
+      <input type="hidden" name="intent" defaultValue="" />
       <div>
         <label htmlFor="ma" className="label">Mã đăng ký</label>
         <input id="ma" name="ma" required placeholder="PQ-7K3M9X" autoCapitalize="characters"

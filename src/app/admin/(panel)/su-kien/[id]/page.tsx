@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AuditLogList } from "@/components/AuditLogList";
 import { EventForm } from "@/components/EventForm";
 import { EventStats } from "@/components/EventStats";
+import { PendingButton } from "@/components/PendingButton";
 import { checkInAction, setRegistrationStatusAction } from "@/lib/actions";
 import { requireAdmin } from "@/lib/auth";
 import { formatDateTime, formatRange } from "@/lib/format";
@@ -23,9 +24,8 @@ function StatusForm({ r, to, label }: { r: Registration; to: RegStatus; label: s
     <form action={setRegistrationStatusAction}>
       <input type="hidden" name="id" value={r.id} />
       <input type="hidden" name="event_id" value={r.event_id} />
-      <button type="submit" name="status" value={to} className="btn btn-quiet btn-sm whitespace-nowrap">
-        {label}
-      </button>
+      <input type="hidden" name="status" value={to} />
+      <PendingButton className="btn btn-quiet btn-sm whitespace-nowrap">{label}</PendingButton>
     </form>
   );
 }
@@ -175,7 +175,7 @@ export default async function AdminEventPage(props: {
                               <input type="hidden" name="ma" value={r.code} />
                               <input type="hidden" name="event_id" value={r.event_id} />
                               <input type="hidden" name="tu" value="su-kien" />
-                              <button type="submit" className="btn btn-primary btn-sm whitespace-nowrap">Check-in</button>
+                              <PendingButton className="btn btn-primary btn-sm whitespace-nowrap">Check-in</PendingButton>
                             </form>
                           )}
                           {r.status !== "approved" && r.status !== "cancelled" && <StatusForm r={r} to="approved" label="Duyệt" />}

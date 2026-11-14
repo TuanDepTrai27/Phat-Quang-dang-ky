@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PendingButton } from "@/components/PendingButton";
 import { checkInAction } from "@/lib/actions";
 import { requireAdmin } from "@/lib/auth";
 import { formatDateTime, formatRange } from "@/lib/format";
@@ -94,9 +95,12 @@ export default async function CheckInPage(props: {
             <form action={checkInAction} className="mt-6 flex flex-wrap gap-3">
               <input type="hidden" name="ma" value={reg.code} />
               {reg.status === "approved" ? (
-                <button type="submit" className="btn btn-primary">Check-in</button>
+                <PendingButton className="btn btn-primary">Check-in</PendingButton>
               ) : (
-                <button type="submit" name="duyet" value="1" className="btn btn-primary">Duyệt và check-in</button>
+                <>
+                  <input type="hidden" name="duyet" value="1" />
+                  <PendingButton className="btn btn-primary">Duyệt và check-in</PendingButton>
+                </>
               )}
             </form>
           ) : (

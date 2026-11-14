@@ -211,13 +211,23 @@ export async function setRegistrationStatusAction(fd: FormData) {
   const id = text(fd, "id");
   const eventId = text(fd, "event_id");
   const status = text(fd, "status");
-  if (!["pending", "approved", "rejected"].includes(status)) return;
+  const back = (loi?: string) =>
+    redirect(`/admin/su-kien/${eventId}${loi ? `?loi=${encodeURIComponent(loi)}` : ""}`);
+  if (!["pending", "approved", "rejected"].includes(status)) back("Thao tác không hợp lệ: thiếu trạng thái mới.");
 
   // Đã check-in thì không đổi trạng thái nữa (giữ đúng số người thực tế có mặt).
-  await supabase.from("registrations").update({ status }).eq("id", id).is("checked_in_at", null);
+  const { data, error } = await supabase
+    .from("registrations")
+    .update({ status })
+    .eq("id", id)
+    .is("checked_in_at", null)
+    .select("id");
   revalidatePath(`/admin/su-kien/${eventId}`);
   revalidatePath("/admin");
   revalidatePath("/");
+  if (error) back(`Chưa cập nhật được trạng thái (${error.message}).`);
+  if (!data?.length) back("Không cập nhật được: đăng ký đã check-in hoặc không còn tồn tại.");
+  back();
 }
 
 export async function addVenueAction(fd: FormData) {
