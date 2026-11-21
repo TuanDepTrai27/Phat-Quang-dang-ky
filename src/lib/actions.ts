@@ -12,7 +12,7 @@ import {
   type LookupResult,
   type RegisterFormState,
 } from "./types";
-import { DB_ERRORS, dbErrorCode, validateLookup, validateRegistration } from "./validation";
+import { DB_ERRORS, dbErrorCode, safeAdminPath, validateLookup, validateRegistration } from "./validation";
 
 const text = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
 
@@ -129,14 +129,9 @@ export async function signInAction(fd: FormData) {
     email: text(fd, "email"),
     password: String(fd.get("password") ?? ""),
   });
-  const next = safeNext(text(fd, "tiep"));
+  const next = safeAdminPath(text(fd, "tiep"));
   if (error) redirect(`/admin/login?loi=sai${next ? `&tiep=${encodeURIComponent(next)}` : ""}`);
   redirect(next ?? "/admin");
-}
-
-/** Chỉ cho quay lại trang quản trị nội bộ, chặn chuyển hướng sang trang ngoài (open redirect). */
-function safeNext(v: string): string | null {
-  return /^\/admin(\/[A-Za-z0-9\-_/]*)?(\?[A-Za-z0-9=&%\-_]*)?$/.test(v) ? v : null;
 }
 
 export async function signOutAction() {

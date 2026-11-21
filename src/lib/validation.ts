@@ -139,3 +139,11 @@ export function dbErrorCode(message: string | undefined | null): DbErrorCode | n
   const key = (Object.keys(DB_ERRORS) as DbErrorCode[]).find((k) => message.includes(k));
   return key ?? null;
 }
+
+/**
+ * Trang được phép quay lại sau khi đăng nhập (tham số ?tiep=).
+ * Chỉ nhận đường dẫn nội bộ bắt đầu bằng /admin, chặn chuyển hướng sang trang ngoài (open redirect).
+ */
+export function safeAdminPath(v: string): string | null {
+  return /^\/admin(\/[A-Za-z0-9\-_/]*)?(\?[A-Za-z0-9=&%\-_]*)?$/.test(v) && !v.includes("//") ? v : null;
+}

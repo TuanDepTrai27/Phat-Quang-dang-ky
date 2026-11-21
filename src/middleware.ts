@@ -2,6 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Làm mới phiên đăng nhập và chặn người chưa đăng nhập vào /admin.
+// Dự án dùng thư mục src/ nên tệp này phải nằm trong src/ thì Next.js mới chạy.
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 

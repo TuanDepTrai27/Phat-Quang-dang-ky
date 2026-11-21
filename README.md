@@ -58,7 +58,7 @@ Lỗi luôn có dạng `{ "error": { "code", "message", "fields"? } }`.
 ## Kiểm thử
 
 - `npm test`: kiểm thử đơn vị phần kiểm tra dữ liệu và phần thống kê (`tests/unit`). Cần Node 22.6 trở lên.
-- `npm run test:api`: kiểm thử tích hợp API trên Supabase thật (`tests/api`): 50 người đăng ký cùng lúc vào sự kiện 10 chỗ, đăng ký trùng, tra cứu sai số điện thoại, hủy và nhả chỗ, nhật ký thao tác; check-in (khách không gọi được, chờ duyệt thì chặn, quét hai lần, 5 lần quét cùng lúc chỉ ghi nhận một, đã check-in thì không tự hủy được).
+- `npm run test:api`: kiểm thử tích hợp API trên Supabase thật (`tests/api`): 50 người đăng ký cùng lúc vào sự kiện 10 chỗ, đăng ký trùng, tra cứu sai số điện thoại, hủy và nhả chỗ, nhật ký thao tác; check-in (khách không gọi được, chờ duyệt thì chặn, quét hai lần, 5 lần quét cùng lúc chỉ ghi nhận một, đã check-in thì không tự hủy được). Bộ `kichban.test.ts` tự động hóa các kịch bản kiểm thử tổng thể: chưa đăng nhập thì mọi trang quản trị chuyển về đăng nhập, sự kiện đóng/đã qua/chưa công khai, mã QR ở trang đăng ký thành công, CSV (BOM, số 0 đầu, cột Check-in, chặn công thức), trang check-in và trang thống kê khi đã đăng nhập.
   Cần `npm run dev` đang chạy ở terminal khác và thêm vào `.env.local`:
   ```
   TEST_ADMIN_EMAIL=email-admin

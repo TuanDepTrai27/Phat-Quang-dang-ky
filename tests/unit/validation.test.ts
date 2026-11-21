@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
   dbErrorCode,
+  safeAdminPath,
   normalizeCode,
   normalizePhone,
   slugify,
@@ -111,5 +112,22 @@ describe("dbErrorCode", () => {
     assert.equal(dbErrorCode("ALREADY_REGISTERED"), "ALREADY_REGISTERED");
     assert.equal(dbErrorCode("connection refused"), null);
     assert.equal(dbErrorCode(undefined), null);
+  });
+});
+
+describe("safeAdminPath (chống chuyển hướng sang trang ngoài sau khi đăng nhập)", () => {
+  it("nhận các trang quản trị nội bộ", () => {
+    for (const v of ["/admin", "/admin/check-in?ma=PQ-ABC234", "/admin/su-kien/6f1c2a3b-4d5e-4f60-8a7b-9c0d1e2f3a4b"]) {
+      assert.equal(safeAdminPath(v), v);
+    }
+  });
+
+  it("từ chối trang ngoài và đường dẫn lạ", () => {
+    for (const v of [
+      "", "https://evil.example", "//evil.example", "/admin//evil.example", "/adminx",
+      "/admin/../x", "/tra-cuu", "/admin?x=<script>", "javascript:alert(1)", "/admin\\evil",
+    ]) {
+      assert.equal(safeAdminPath(v), null, v);
+    }
   });
 });
