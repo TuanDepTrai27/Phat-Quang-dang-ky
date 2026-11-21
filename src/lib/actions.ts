@@ -94,6 +94,7 @@ export async function lookupAction(
   const phone = checked.data.phone;
 
   let message: string | undefined;
+  let cancelError: string | undefined;
   if (text(fd, "intent") === "cancel") {
     const supabase = await createClient();
     const { data, error } = await supabase.rpc("cancel_registration", {
@@ -102,6 +103,7 @@ export async function lookupAction(
     });
     if (error) return { error: "Chưa hủy được đăng ký. Bạn thử lại sau.", values };
     message = data ? "Đã hủy đăng ký." : undefined;
+    if (!data) cancelError = "Không hủy được: đăng ký đã check-in tại sự kiện hoặc không còn hiệu lực.";
     revalidatePath("/");
   }
 
@@ -114,7 +116,7 @@ export async function lookupAction(
   }
   const qr =
     result.status === "pending" || result.status === "approved" ? (await checkInQrSvg(result.code)) ?? undefined : undefined;
-  return { result, qr, message, values };
+  return { result, qr, message, error: cancelError, values };
 }
 
 /* ------------------------------------------------------------------ */
